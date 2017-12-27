@@ -65,9 +65,9 @@ Login
   Input Date  name=Tender[dgfDecisionDate]  ${tender_data.data.dgfDecisionDate}
   Input Date  name=Tender[auctionPeriod][startDate]  ${tender_data.data.auctionPeriod.startDate}
   :FOR  ${index}  IN RANGE  ${number_of_items}
-  \  Run Keyword If  ${index} != 0  Click Element  xpath=(//button[contains(@id, "add-item")])[last()]
+  \  Run Keyword If  ${index} != 0  Scroll And Click  xpath=(//button[@id="add-item"])[last()]
   \  Додати предмет  ${items[${index}]}  ${index}
-  Click Element  id=btn-submit-form
+  Scroll And Click  id=btn-submit-form
   Wait Until Page Contains Element  xpath=//*[@data-test-id="tenderID"]  10
   ${tender_uaid}=  Get Text  xpath=//*[@data-test-id="tenderID"]
   [return]  ${tender_uaid}
@@ -78,12 +78,12 @@ Login
   Input text  name=Tender[items][${index}][description]  ${item.description}
   Input text  name=Tender[items][${index}][quantity]  ${item.quantity}
   Select From List By Value  name=Tender[items][${index}][unit][code]  ${item.unit.code}
-  Click Element  name=Tender[items][${index}][classification][description]
+  Scroll And Click  name=Tender[items][${index}][classification][description]
   Wait Until Element Is Visible  id=search_code   30
   Input text  id=search_code  ${item.classification.id}
   Wait Until Page Contains  ${item.classification.id}
-  Click Element  xpath=//span[contains(text(),'${item.classification.id}')]
-  Click Element  id=btn-ok
+  Scroll And Click  xpath=//span[contains(text(),'${item.classification.id}')]
+  Scroll And Click  id=btn-ok
   Run Keyword And Ignore Error  Wait Until Element Is Not Visible  xpath=//div[@class="modal-backdrop fade"]  10
   Select From List By Label  name=Tender[items][${index}][address][countryName]  ${item.deliveryAddress.countryName}
   Select From List By Label  name=Tender[items][${index}][address][region]  ${item.deliveryAddress.region}
@@ -109,9 +109,10 @@ Login
   Switch Browser  ${my_alias}
   epsilon.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
   Click Element  xpath=//a[contains(text(),'Редагувати')]
-  Choose File  xpath=(//*[@name="FileUpload[file]"])[last()]  ${filepath}
-  Select From List By Value   xpath=(//*[@class="document-type"])[last()]   illustration
-  #Input Text  xpath=//label[text()='${filepath.split('/')[-1]}']/../../descendant::input[contains(@name,'[title]')]   ${filepath.split('/')[-1]}
+  Choose File  xpath=(//*[@name="FileUpload[file][]"])[last()]  ${filepath}
+  Scroll And Select From List By Value   xpath=(//*[@class="document-type"])[last()]   illustration
+  Scroll And Select From List By Value   xpath=(//select[@class="document-related-item"])[last()]   tender
+  Input Text  xpath=(//input[@class="document-title"])[last()]    ${filepath.split('/')[-1]}
   Click Button  id=btn-submit-form
   Wait Until Element Is Not Visible   id=btn-submit-form
   Дочекатися завантаження документу
@@ -129,9 +130,7 @@ Login
   [Arguments]  ${username}  ${tender_uaid}  ${vdr_url}  ${title}=Sample Virtual Data Room
   epsilon.Пошук тендера по ідентифікатору   ${username}   ${tender_uaid}
   Click Element  xpath=//a[contains(text(),'Редагувати')]
-  Wait Until Element Is Visible  xpath=//*[@id="add-link"]
-  Wait Until Keyword Succeeds  10 x  1 s  Select From List By Value  id="modal-document-type"  virtualDataRoom
-  Click Element  xpath=//*[@data-bb-handler="confirm"]
+  Scroll And Click  xpath=//*[@data-type="virtualDataRoom"]
   Wait Until Element Is Visible  xpath=(//*[@class="document-url"])[last()]
   Input Text  xpath=(//*[@class="document-title"])[last()]  ${title}
   Input Text  xpath=(//*[@class="document-url"])[last()]  ${vdr_url}
@@ -142,9 +141,10 @@ Login
   Switch Browser  ${my_alias}
   epsilon.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
   Click Element  xpath=//a[contains(text(),'Редагувати')]
-  Choose File  xpath=(//*[@name="FileUpload[file]"])[last()]  ${filepath}
-  Select From List By Value   xpath=//label[text()='${filepath.split('/')[-1]}']/../../descendant::*[contains(@name,"[documentType]")]   ${documentType}
-  Input Text  xpath=//label[text()='${filepath.split('/')[-1]}']/../../descendant::input[contains(@name,'[title]')]   ${filepath.split('/')[-1]}
+  Choose File  xpath=(//*[@name="FileUpload[file][]"])[last()]  ${filepath}
+  Scroll And Select From List By Value   xpath=(//*[@class="document-type"])[last()]   ${documentType}
+  Scroll And Select From List By Value   xpath=(//select[@class="document-related-item"])[last()]   tender
+  Input Text  xpath=(//input[@class="document-title"])[last()]    ${filepath.split('/')[-1]}
   Click Button  id=btn-submit-form
   Wait Until Keyword Succeeds  20 x  1 s  Element Should Not Be Visible  id=btn-submit-form
   Дочекатися завантаження документу
@@ -153,9 +153,7 @@ Login
   [Arguments]  ${username}  ${tender_uaid}  ${certificate_url}  ${title}=Public Asset Certificate
   epsilon.Пошук тендера по ідентифікатору   ${username}   ${tender_uaid}
   Click Element  xpath=//a[contains(text(),'Редагувати')]
-  Wait Until Element Is Visible  xpath=//*[@id="add-link"]
-  Wait Until Keyword Succeeds  10 x  1 s  Select From List By Value  id="modal-document-type"  x_dgfPublicAssetCertificate
-  Click Element  xpath=//*[@data-bb-handler="confirm"]
+  Click Element  xpath=//*[@data-type="x_dgfPublicAssetCertificate"]
   Wait Until Element Is Visible  xpath=(//*[@class="document-url"])[last()]
   Input Text  xpath=(//*[@class="document-title"])[last()]  ${title}
   Input Text  xpath=(//*[@class="document-url"])[last()]  ${certificate_url}
@@ -165,12 +163,10 @@ Login
   [Arguments]  ${username}  ${tender_uaid}  ${accessDetails}  ${title}=Familiarization with bank asset
   epsilon.Пошук тендера по ідентифікатору   ${username}   ${tender_uaid}
   Click Element  xpath=//a[contains(text(),'Редагувати')]
-  Wait Until Element Is Visible  xpath=//*[@id="add-link"]
-  Wait Until Keyword Succeeds  10 x  1 s  Select From List By Value  id="modal-document-type"  x_dgfAssetFamiliarization
-  Click Element  xpath=//*[@data-bb-handler="confirm"]
-  Wait Until Element Is Visible  xpath=(//*[@class="document-url"])[last()]
-  Input Text  xpath=(//*[@class="document-title"])[last()]  ${title}
-  Input Text  xpath=(//*[@class="document-url"])[last()]  ${accessDetails}
+  Click Element  xpath=//*[@data-type="x_dgfAssetFamiliarization"]
+  Wait Until Element Is Visible  xpath=(//input[@class="document-access-details"])[last()]
+  Input Text  xpath=(//input[@class="document-access-details"])[last()]  ${accessDetails}
+  Input Text  xpath=(//input[@class="document-title"])[last()]  ${title}
   Click Button  id=btn-submit-form
 
 Пошук тендера по ідентифікатору
@@ -184,6 +180,8 @@ Login
   Wait Until Element Is Visible  id=tenderssearch-tender_cbd_id
   Input text  id=tenderssearch-tender_cbd_id  ${tender_uaid}
   Wait Until Keyword Succeeds  30x  400ms  Перейти на сторінку з інформацією про тендер  ${tender_uaid}
+  Click Element  xpath=//*[contains(@href, "tender/json/")]
+
 
 Перейти на сторінку з інформацією про тендер
   [Arguments]  ${tender_uaid}
@@ -202,8 +200,9 @@ Login
   ${field_value}=  Convert To String  ${field_value}
   epsilon.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
   Click Element  xpath=//a[contains(text(),'Редагувати')]
-  Choose File  xpath=(//*[@name="FileUpload[file]"])[last()]  ${filepath}
+  Choose File  xpath=(//*[@name="FileUpload[file][]"])[last()]  ${filepath}
   Select From List By Value   xpath=//input[contains(@value, '${filepath.split('/')[-1].split('.')[1]}')]/../descendant::*[contains(@name,"[documentType]")]   clarifications
+  Select From List By Value   xpath=(//select[@class="document-related-item"])[last()]   tender
   Run Keyword If  "${field_name}" == "tenderAttempts"  Select From List By Value  name=Tender[${field_name}]  ${field_value}
   ...  ELSE IF  "Date" in "${field_name}"  Input Date  name=Tender[${field_name}]  ${field_value}
   ...  ELSE  Input text  name=Tender[${field_name}]  ${field_value}
@@ -221,7 +220,7 @@ Login
   Click Element  xpath=//a[contains(@href,'/tender/cancel/')]
   Select From List By Value  id=cancellation-relatedlot  tender
   Select From List By Value  id=cancellation-reason  ${cancellation_reason}
-  Choose File  name=FileUpload[file]  ${document}
+  Choose File  name=FileUpload[file][]  ${document}
   Wait Until Element Is Visible  name=Tender[cancellations][documents][0][title]
   Input Text  name=Tender[cancellations][documents][0][title]  ${document.replace('/tmp/', '')}
   Click Element  xpath=//button[@type="submit"]
@@ -255,8 +254,8 @@ Login
 Відповісти на запитання
   [Arguments]  ${username}  ${tender_uaid}  ${answer_data}  ${question_id}
   epsilon.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
-  Wait Until Element Is Enabled  xpath=//a[@tid="sidebar.questions"]
-  Click Element  xpath=//a[@tid="sidebar.questions"]
+  Wait Until Element Is Enabled  xpath=//a[@data-test-id="sidebar.questions"]
+  Click Element  xpath=//a[@data-test-id="sidebar.questions"]
   Wait Until Element Is Visible  xpath=//h4[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]
   Input text  xpath=//h4[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]  ${answer_data.data.answer}
   Click Element  xpath=//h4[contains(text(),'${question_id}')]/following-sibling::button[@name="answer_question_submit"]
@@ -316,8 +315,8 @@ Login
 
 Отримати інформацію із пропозиції
   [Arguments]  ${username}  ${tender_uaid}  ${field}
-  ${bid_value}=   Get Text   xpath=//div[contains(text(), 'Ваша ставка')]
-  ${bid_value}=   Convert To Number   ${bid_value.split(' ')[-2]}
+  ${bid_value}=   Get Value   xpath=//*[@id="value-amount"]
+#  ${bid_value}=   Convert To Number   ${bid_value.split(' ')[-2]}
   [return]  ${bid_value}
 
 Отримати інформацію із документа
@@ -366,10 +365,10 @@ Login
   Run Keyword And Ignore Error  epsilon.Скасувати цінову пропозицію  ${username}  ${tender_uaid}
   Run Keyword If  '${MODE}' != 'dgfInsider'  ConvToStr And Input Text  xpath=//input[contains(@name, '[value][amount]')]  ${bid.data.value.amount}
   ...  ELSE  Scroll And Click  xpath=//input[@id="bid-participate"]/..
-  Choose File  name=FileUpload[file]  ${file_path}
+  Choose File  name=FileUpload[file][]  ${file_path}
   Run Keyword If  '${MODE}' == 'dgfFinancialAssets'  Run Keywords
-  ...  Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  financialLicense
-  ...  AND  Click Element  xpath=//*[@id="bid-checkforunlicensed"]/..
+  ...  Scroll And Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  financialLicense
+  ...  AND  Run Keyword And Ignore Error  Click Element  xpath=//*[@id="bid-checkforunlicensed"]/..
   ...  ELSE  Scroll And Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  commercialProposal
   Click Element  xpath=//button[contains(text(), 'Відправити')]
   Wait Until Page Contains Element  xpath=//div[contains(@class,'alert-success')]
@@ -401,7 +400,7 @@ Login
   epsilon.Скасувати цінову пропозицію  ${username}  ${tender_uaid}
   Wait Until Element Is Visible   xpath=//input[contains(@name, '[value][amount]')]
   ConvToStr And Input Text  xpath=//input[contains(@name, '[value][amount]')]  ${fieldvalue}
-  Choose File  name=FileUpload[file]  ${file_path}
+  Choose File  name=FileUpload[file][]  ${file_path}
   Run Keyword If  '${MODE}' == 'dgfFinancialAssets'
   ...  Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  financialLicense
   ...  ELSE  Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  commercialProposal
@@ -413,13 +412,13 @@ Login
 Завантажити документ в ставку
   [Arguments]  ${username}  ${path}  ${tender_uaid}  ${doc_type}=documents
   epsilon.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
-  ${value}=  Run Keyword If  '${MODE}' != 'dgfInsider'  Run Keywords
-  ...  epsilon.Отримати інформацію із пропозиції  ${username}  ${tender_uaid}  ${EMPTY}
-  ...  AND  epsilon.Скасувати цінову пропозицію  ${username}  ${tender_uaid}
-  ...  AND  Wait Until Element Is Visible   xpath=//input[contains(@name, '[value][amount]')]
-  ...  AND  ConvToStr And Input Text  xpath=//input[contains(@name, '[value][amount]')]  ${value}
-  ...  AND  Click Element  xpath=//*[@id="bid-checkforunlicensed"]/..
-  Choose File  name=FileUpload[file]  ${path}
+#  ${value}=  Run Keyword If  '${MODE}' != 'dgfInsider'  Run Keywords
+#  ...  epsilon.Отримати інформацію із пропозиції  ${username}  ${tender_uaid}  ${EMPTY}
+#  ...  AND  epsilon.Скасувати цінову пропозицію  ${username}  ${tender_uaid}
+#  ...  AND  Wait Until Element Is Visible   xpath=//input[contains(@name, '[value][amount]')]
+#  ...  AND  ConvToStr And Input Text  xpath=//input[contains(@name, '[value][amount]')]  ${value}
+#  ...  AND  Click Element  xpath=//*[@id="bid-checkforunlicensed"]/..
+  Choose File  name=FileUpload[file][]  ${path}
   Run Keyword If  '${MODE}' != 'dgfOtherAssets'
   ...  Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  financialLicense
   ...  ELSE  Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  commercialProposal
@@ -443,7 +442,7 @@ Login
   [Arguments]  ${username}  ${tender_uaid}  ${lot_id}=${Empty}
   Switch Browser  ${my_alias}
   epsilon.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
-  ${auction_url}  Get Element Attribute  xpath=(//a[contains(@href, "openprocurement.org/")])[1]@href
+  ${auction_url}  Get Element Attribute  xpath=(//a[contains(@href, "openprocurement.org/auction")])[1]@href
   [return]  ${auction_url}
 
 Отримати посилання на аукціон для учасника
@@ -496,7 +495,7 @@ Login
 Завантажити протокол аукціону
   [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
   Перейти на сторінку кваліфікації учасників  ${username}  ${tender_uaid}
-  Choose File  name=FileUpload[file]  ${filepath}
+  Choose File  name=FileUpload[file][]  ${filepath}
   Wait Until Element Is Visible  xpath=//*[contains(@name,'[documentType]')]
   Select From List By Value  xpath=(//*[contains(@name,'[documentType]')])[last()]  auctionProtocol
   Click Element  id=submit_winner_files
@@ -506,7 +505,7 @@ Login
 Завантажити протокол аукціону в авард
   [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
   Перейти на сторінку кваліфікації учасників  ${username}  ${tender_uaid}
-  Choose File  xpath=(//input[@name="FileUpload[file]"])[last()]  ${filepath}
+  Choose File  xpath=(//input[@name="FileUpload[file][]"])[last()]  ${filepath}
   Click Element  name=protokol_ok
   Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//button[@data-bb-handler="confirm"]
   Click Element  xpath=//button[@data-bb-handler="confirm"]
@@ -538,7 +537,7 @@ Login
 Завантажити документ рішення кваліфікаційної комісії
   [Arguments]  ${username}  ${document}  ${tender_uaid}  ${award_num}
   Перейти на сторінку кваліфікації учасників  ${username}  ${tender_uaid}
-  Choose File  name=FileUpload[file]  ${document}
+  Choose File  name=FileUpload[file][]  ${document}
 
 Завантажити угоду до тендера
   [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${filepath}
@@ -546,7 +545,7 @@ Login
   Wait Until Keyword Succeeds  5 x  0.5 s  Click Element  xpath=//button[text()="Контракт"]
   Capture Page Screenshot
   Wait Until Element Is Visible  xpath=//*[text()="Додати документ"]
-  Choose File  xpath=//a[contains(@class,"uploadcontract")]/descendant::*[@name="FileUpload[file]"]  ${filepath}
+  Choose File  xpath=//a[contains(@class,"uploadcontract")]/descendant::*[@name="FileUpload[file][]"]  ${filepath}
   Wait Until Element Is Visible  xpath=(//button[text()='Завантажити'])[last()]
   Capture Page Screenshot
   Click Element  xpath=(//button[text()='Завантажити'])[last()]
