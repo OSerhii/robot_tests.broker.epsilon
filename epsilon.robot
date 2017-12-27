@@ -609,7 +609,7 @@ Position Should Equals
 Scroll To Element
   [Arguments]  ${locator}
   ${elem_vert_pos}=  Get Vertical Position  ${locator}
-  Execute Javascript  window.scrollTo(0,${elem_vert_pos - 200});
+  Execute Javascript  window.scrollTo(0,${elem_vert_pos - 300});
 
 Scroll And Click
   [Arguments]  ${locator}
