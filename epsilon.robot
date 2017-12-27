@@ -173,22 +173,20 @@ Login
   [Arguments]  ${username}  ${tender_uaid}
   Switch Browser  ${my_alias}
   Go To  http://test.tbepsilon.com/tenders/index
-  ${status}=  Run Keyword And Return Status  Wait Until Element Is Visible  xpath=//button[@data-dismiss="modal"]  5
-  Run Keyword If  ${status}  Wait Until Keyword Succeeds  10 x  1 s  Закрити модалку з новинами
+  Sleep  3
+  ${is_events_visible}=  Run Keyword And Return Status  Element Should Be Visible  xpath=//button[contains(@id,"-read-all")]
+  Run Keyword If  ${is_events_visible}  Click Element  xpath=//button[contains(@id,"-read-all")]
   Click Element  id=more-filter
   Дочекатися Анімації  id=tenderssearch-tender_cbd_id
-  Wait Until Element Is Visible  id=tenderssearch-tender_cbd_id
-  Input text  id=tenderssearch-tender_cbd_id  ${tender_uaid}
-  Wait Until Keyword Succeeds  30x  400ms  Перейти на сторінку з інформацією про тендер  ${tender_uaid}
+  Wait Until Element Is Visible  name=TendersSearch[tender_cbd_id]  10
+  Input text  name=TendersSearch[tender_cbd_id]  ${tender_uaid}
+  Wait Until Keyword Succeeds  6x  20s  Run Keywords
+  ...  Дочекатися І Клікнути  xpath=//button[text()='Шукати']
+  ...  AND  Wait Until Element Is Visible  xpath=//*[contains(@class, "btn-search_cancel")]  10
+  ...  AND  Wait Until Element Is Visible  xpath=//*[contains(text(),'${tender_uaid}')]/ancestor::div[@class="search-result"]/descendant::a[1]  10
+  Click Element  xpath=//*[contains(text(),'${tender_uaid}')]/ancestor::div[@class="search-result"]/descendant::a[1]
+  Wait Until Element Is Visible  xpath=//*[@data-test-id="tenderID"]  10
   Click Element  xpath=//*[contains(@href, "tender/json/")]
-
-
-Перейти на сторінку з інформацією про тендер
-  [Arguments]  ${tender_uaid}
-  Click Element  xpath=//button[@data-test-id="search"]
-  Wait Until Element Is Visible  xpath=//*[contains(text(),'${tender_uaid}') and contains('${tender_uaid}', normalize-space(text()))]/ancestor::div[@class="search-result"]/descendant::a[contains(@href,"/view/")]  10
-  Wait Until Keyword Succeeds  5 x  1 s  Click Element  xpath=//*[contains(text(),'${tender_uaid}') and contains('${tender_uaid}', normalize-space(text()))]/ancestor::div[@class="search-result"]/descendant::a[contains(@href,"/view/")]
-  Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//*[@data-test-id="tenderID"]
 
 Оновити сторінку з тендером
   [Arguments]  ${username}  ${tender_uaid}
@@ -256,9 +254,9 @@ Login
   epsilon.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
   Wait Until Element Is Enabled  xpath=//a[@data-test-id="sidebar.questions"]
   Click Element  xpath=//a[@data-test-id="sidebar.questions"]
-  Wait Until Element Is Visible  xpath=//h4[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]
-  Input text  xpath=//h4[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]  ${answer_data.data.answer}
-  Click Element  xpath=//h4[contains(text(),'${question_id}')]/following-sibling::button[@name="answer_question_submit"]
+  Wait Until Element Is Visible  xpath=//*[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]
+  Input text  xpath=//*[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]  ${answer_data.data.answer}
+  Click Element  xpath=//*[contains(text(),'${question_id}')]/following-sibling::button[@name="answer_question_submit"]
   Wait Until Page Contains Element  xpath=//div[contains(@class,'alert-success')]  30
 
 ###############################################################################################################
@@ -624,3 +622,9 @@ Scroll And Select From List By Value
 JQuery Ajax Should Complete
   ${active}=  Execute Javascript  return jQuery.active
   Should Be Equal  "${active}"  "0"
+
+Дочекатися і Клікнути
+  [Arguments]  ${locator}
+  Wait Until Element Is Visible  ${locator}
+  Scroll To Element  ${locator}
+  Click Element  ${locator}
