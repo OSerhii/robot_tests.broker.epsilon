@@ -254,9 +254,10 @@ Login
   epsilon.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
   Wait Until Element Is Enabled  xpath=//a[@data-test-id="sidebar.questions"]
   Click Element  xpath=//a[@data-test-id="sidebar.questions"]
+  Toggle Sidebar
   Wait Until Element Is Visible  xpath=//*[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]
   Input text  xpath=//*[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]  ${answer_data.data.answer}
-  Click Element  xpath=//*[contains(text(),'${question_id}')]/../descendant::button[@name="answer_question_submit"]
+  Scroll And Click  xpath=//*[contains(text(),'${question_id}')]/../descendant::button[@name="answer_question_submit"]
   Wait Until Page Contains Element  xpath=//div[contains(@class,'alert-success')]  30
 
 ###############################################################################################################
@@ -468,7 +469,7 @@ Login
   Click Element  xpath=//button[text()='Підтвердити отримання оплати']
   Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//button[@data-bb-handler="confirm"]
   Click Element  xpath=//button[@data-bb-handler="confirm"]
-  Wait Until Element Is Visible   xpath=//button[contains(@class, 'tender_contract_btn')]
+  Wait Until Element Is Visible   xpath=//button[text()="Контракт"]
 
 Отримати кількість документів в ставці
   [Arguments]  ${username}  ${tender_uaid}  ${bid_index}
@@ -528,12 +529,15 @@ Login
 
 Дискваліфікувати постачальника
   [Arguments]  ${username}  ${tender_uaid}  ${award_num}  ${description}
+  ${document}=  get_upload_file_path
+  Run Keyword If  """Відображення статусу 'оплачено, очікується підписання договору'""" not in """${PREV TEST NAME}"""
+  ...  Wait Until Keyword Succeeds  10 x  60 s  Звірити статус тендера  ${username}  ${tender_uaid}  active.qualification
   Перейти на сторінку кваліфікації учасників  ${username}  ${tender_uaid}
-  Click Element  xpath=(//input[@name="Award[cause][]"])[1]
-  Click Element  xpath=//button[@name="send_prequalification"]
-  Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//button[@data-bb-handler="confirm"]
-  Click Element  xpath=//button[@data-bb-handler="confirm"]
-  Wait Until Page Contains  Дисквалiфiковано
+  Click Element  xpath=//*[contains(@id, "modal-disqualification")]
+  Дочекатися І Клікнути  xpath=(//input[@name="Award[cause][]"])[1]/..
+  Choose File  xpath=//*[@id="disqualification-form-upload-file"]/descendant::input[@type="file"]  ${document}
+  Click Element  id=disqualification
+  Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//div[contains(@class,'alert-success')]
 
 Завантажити документ рішення кваліфікаційної комісії
   [Arguments]  ${username}  ${document}  ${tender_uaid}  ${award_num}
@@ -543,28 +547,27 @@ Login
 Завантажити угоду до тендера
   [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${filepath}
   Перейти на сторінку кваліфікації учасників   ${username}  ${tender_uaid}
-  Wait Until Keyword Succeeds  5 x  0.5 s  Click Element  xpath=//button[text()="Контракт"]
-  Capture Page Screenshot
-  Wait Until Element Is Visible  xpath=//*[text()="Додати документ"]
-  Choose File  xpath=//a[contains(@class,"uploadcontract")]/descendant::*[@name="FileUpload[file][]"]  ${filepath}
-  Wait Until Element Is Visible  xpath=(//button[text()='Завантажити'])[last()]
-  Capture Page Screenshot
-  Click Element  xpath=(//button[text()='Завантажити'])[last()]
-  Wait Until Keyword Succeeds  20 x  1 s  Element Should Not Be Visible  xpath=(//button[text()='Завантажити'])[last()]
-  Capture Page Screenshot
+  Click Element  xpath=//button[text()="Контракт"]
+  Choose File  xpath=//*[@id="uploadcontract"]/descendant::input[@type="file"]  ${filepath}
 
 
 Підтвердити підписання контракту
   [Arguments]  ${username}  ${tender_uaid}  ${contract_num}
   ${filepath}=  get_upload_file_path
   Перейти на сторінку кваліфікації учасників   ${username}  ${tender_uaid}
+  Wait Until Keyword Succeeds  5 x  0.5 s  Click Element  xpath=//button[text()="Контракт"]
+  Wait Until Element Is Visible  xpath=//*[text()="Додати документ"]
+  Choose File  xpath=//*[@id="uploadcontract"]/descendant::input[@type="file"]  ${filepath}
+  Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//button[contains(@class, "delete_file")]
+  Input Text  id=contract-contractnumber  777
+  Click Element  id=contract-fill-data
+  Wait Until Keyword Succeeds  10 x  1 s  Page Should Contain  Кнопка "Завершити електронні торги" з'явиться після закінчення завантаження даних та оновлення сторінки
   Wait Until Keyword Succeeds  10 x  60 s  Run Keywords
   ...  Reload Page
-  ...  AND  Click Element  xpath=//button[contains(@class, 'tender_contract_btn')]
-  ...  AND  Input Text  xpath=(//input[contains(@name,"[contractNumber]")])[2]  777
-  ...  AND  Choose Ok On Next Confirmation
-  ...  AND  Click Element  xpath=(//button[text()='Активувати'])[2]
-  ...  AND  Confirm Action
+  ...  AND  Element Should Be Visible  id=contract-activate
+  Choose Ok On Next Confirmation
+  Click Element  id=contract-activate
+  Confirm Action
 
 ###############################################################################################################
 
@@ -631,3 +634,9 @@ JQuery Ajax Should Complete
   Wait Until Element Is Visible  ${locator}
   Scroll To Element  ${locator}
   Click Element  ${locator}
+
+Toggle Sidebar
+  ${is_sidebar_visible}=  Run Keyword And Return Status  Element Should Be Visible  xpath=//div[contains(@class,"mk-slide-panel_body")]
+  Run Keyword If  ${is_sidebar_visible}  Run Keywords
+  ...  Wait Until Keyword Succeeds  5 x  1 s  Click Element  id=slidePanelToggle
+  ...  AND  Дочекатися Анімації  xpath=//div[@class="title"]
