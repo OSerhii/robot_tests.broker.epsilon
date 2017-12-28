@@ -256,7 +256,7 @@ Login
   Click Element  xpath=//a[@data-test-id="sidebar.questions"]
   Wait Until Element Is Visible  xpath=//*[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]
   Input text  xpath=//*[contains(text(),'${question_id}')]/../descendant::textarea[contains(@name,'[answer]')]  ${answer_data.data.answer}
-  Click Element  xpath=//*[contains(text(),'${question_id}')]/following-sibling::button[@name="answer_question_submit"]
+  Click Element  xpath=//*[contains(text(),'${question_id}')]/../descendant::button[@name="answer_question_submit"]
   Wait Until Page Contains Element  xpath=//div[contains(@class,'alert-success')]  30
 
 ###############################################################################################################
@@ -502,13 +502,16 @@ Login
 
 Завантажити протокол аукціону в авард
   [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
+  Run Keyword If  """Відображення статусу 'оплачено, очікується підписання договору'""" not in """${PREV TEST NAME}"""
+  ...  Wait Until Keyword Succeeds  10 x  60 s  Звірити статус тендера  ${username}  ${tender_uaid}  active.qualification
   Перейти на сторінку кваліфікації учасників  ${username}  ${tender_uaid}
-  Choose File  xpath=(//input[@name="FileUpload[file][]"])[last()]  ${filepath}
+  Click Element  xpath=//*[contains(@id,"modal-verification")]
+  Choose File  xpath=//*[@id="verification-form-upload-file"]/descendant::input[@type="file"]  ${filepath}
   Click Element  name=protokol_ok
-  Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//button[@data-bb-handler="confirm"]
-  Click Element  xpath=//button[@data-bb-handler="confirm"]
   Wait Until Element Is Visible  xpath=//div[contains(@class,'alert-success')]
-  Wait Until Keyword Succeeds  15 x  1 m  Дочекатися завантаження файлу  ${filepath.split('/')[-1]}
+  Wait Until Keyword Succeeds  10 x  30 s  Run Keywords
+  ...  Reload Page
+  ...  AND  Element Should Not Be Visible  xpath=//button[@onclick="window.location.reload();"]
 
 Підтвердити наявність протоколу аукціону
   [Arguments]  ${username}  ${tender_uaid}  ${award_index}
