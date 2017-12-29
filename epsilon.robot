@@ -538,6 +538,9 @@ Login
   Choose File  xpath=//*[@id="disqualification-form-upload-file"]/descendant::input[@type="file"]  ${document}
   Click Element  id=disqualification
   Wait Until Keyword Succeeds  10 x  1 s  Element Should Be Visible  xpath=//div[contains(@class,'alert-success')]
+  Wait Until Keyword Succeeds  10 x  30 s  Run Keywords
+  ...  Reload Page
+  ...  AND  Element Should Not Be Visible  xpath=//button[@onclick="window.location.reload();"]
 
 Завантажити документ рішення кваліфікаційної комісії
   [Arguments]  ${username}  ${document}  ${tender_uaid}  ${award_num}
